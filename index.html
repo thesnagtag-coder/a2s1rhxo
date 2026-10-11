@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Home Health Calendar | Beneath the Surface | The Snag Tag</title>
+<style>
+:root{
+  --paper:#F7FAFD; --sheet:#FFFFFF; --grid:rgba(45,91,154,.07); --grid2:rgba(45,91,154,.035);
+  --ink:#16243F; --ink2:#44546F; --muted:#6B7A93; --line:#C9D6E8; --line2:#E2EAF4;
+  --blue:#2D5B9A; --blue-soft:#E8F0FA; --cyan:#0B7F97; --cyan-soft:#E6F4F7;
+  --high:#B3261E; --high-soft:#FCEBEA; --med:#A15C00; --med-soft:#FFF3E0; --low:#2E7D4F; --low-soft:#E7F5EC;
+  --focus:#0B7F97; --shadow:0 1px 2px rgba(22,36,63,.06),0 4px 14px rgba(22,36,63,.05);
+  --mono:ui-monospace,"SFMono-Regular","Cascadia Mono","Roboto Mono",Consolas,monospace;
+  --sans:"Segoe UI",system-ui,-apple-system,"Helvetica Neue",Arial,sans-serif;
+}
+[data-theme="dark"]{
+  --paper:#0F1A2C; --sheet:#15233A; --grid:rgba(140,180,230,.07); --grid2:rgba(140,180,230,.035);
+  --ink:#E6EEF9; --ink2:#B8C6DB; --muted:#8C9BB2; --line:#2F4466; --line2:#243855;
+  --blue:#8CB4E6; --blue-soft:#1C3150; --cyan:#5CC6DA; --cyan-soft:#10303A;
+  --high:#FF8A80; --high-soft:#3A1E22; --med:#FFB74D; --med-soft:#3A2C17; --low:#81C995; --low-soft:#1B3326;
+  --shadow:none;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{
+  font-family:var(--sans); color:var(--ink); background:var(--paper); font-size:15px; line-height:1.5;
+  background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px),
+  linear-gradient(var(--grid2) 1px,transparent 1px),linear-gradient(90deg,var(--grid2) 1px,transparent 1px);
+  background-size:80px 80px,80px 80px,16px 16px,16px 16px;
+}
+button,input,select,textarea{font:inherit;color:inherit}
+a{color:var(--blue)}
+.wrap{max-width:1180px;margin:0 auto;padding:0 16px}
+/* Title block */
+header.tb{background:var(--sheet);border-bottom:2px solid var(--ink);position:sticky;top:0;z-index:20}
+@media(max-width:700px){header.tb{position:static}.tb-cell{padding:8px 12px}}
+.tb-row{display:flex;align-items:stretch;gap:0;flex-wrap:wrap}
+.tb-cell{padding:10px 14px;border-right:1px solid var(--line);display:flex;flex-direction:column;justify-content:center;min-width:0}
+.tb-cell:last-child{border-right:0}
+.tb-label{font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.brand{flex:1 1 280px}
+.brand .coll{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--cyan)}
+.brand h1{margin:2px 0 0;font-size:20px;font-weight:700;letter-spacing:-.01em}
+.brand h1 span{color:var(--blue);font-weight:600}
+.tb-ctrl{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.seg{display:inline-flex;border:1px solid var(--ink);border-radius:4px;overflow:hidden}
+.seg button{border:0;background:transparent;padding:6px 10px;font-size:13px;cursor:pointer;font-family:var(--mono)}
+.seg button+button{border-left:1px solid var(--ink)}
+.seg button.on{background:var(--ink);color:var(--sheet)}
+nav.tabs{background:var(--sheet);border-bottom:1px solid var(--line)}
+nav.tabs .wrap{display:flex;gap:2px;overflow-x:auto;scrollbar-width:thin}
+nav.tabs button{border:0;background:none;padding:12px 14px;cursor:pointer;font-size:14px;color:var(--ink2);border-bottom:3px solid transparent;white-space:nowrap}
+nav.tabs button .n{font-family:var(--mono);font-size:11px;color:var(--muted);margin-right:6px}
+nav.tabs button.on{color:var(--ink);border-bottom-color:var(--cyan);font-weight:600}
+main{padding:22px 0 60px}
+.sheet{background:var(--sheet);border:1px solid var(--line);border-radius:6px;box-shadow:var(--shadow);margin-bottom:18px;position:relative}
+.sheet-h{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:12px 16px;border-bottom:1px solid var(--line2);flex-wrap:wrap}
+.sheet-h h2{margin:0;font-size:17px}
+.sheet-h .ref{font-family:var(--mono);font-size:11px;color:var(--muted);letter-spacing:.08em}
+.sheet-b{padding:16px}
+.lede{color:var(--ink2);margin:0 0 12px;max-width:760px}
+.grid{display:grid;gap:12px}
+.g2{grid-template-columns:repeat(2,minmax(0,1fr))}
+.g3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.g4{grid-template-columns:repeat(4,minmax(0,1fr))}
+@media(max-width:820px){.g3,.g4{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:560px){.g2,.g3,.g4{grid-template-columns:1fr}}
+label.f{display:flex;flex-direction:column;gap:4px;font-size:13px;color:var(--ink2);min-width:0}
+label.f>span{font-family:var(--mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+input[type=text],input[type=number],input[type=date],select,textarea{
+  width:100%;padding:9px 10px;border:1px solid var(--line);border-radius:4px;background:var(--sheet);font-size:14px}
+textarea{min-height:70px;resize:vertical}
+input:focus,select:focus,textarea:focus,button:focus-visible{outline:2px solid var(--focus);outline-offset:1px}
+.hint{font-size:12px;color:var(--muted)}
+.conv{font-family:var(--mono);font-size:12px;color:var(--cyan);min-height:16px}
+.btn{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--ink);background:var(--sheet);padding:8px 14px;border-radius:4px;cursor:pointer;font-size:14px}
+.btn:hover{background:var(--blue-soft)}
+.btn.pri{background:var(--ink);color:var(--sheet)}
+.btn.pri:hover{background:var(--blue);border-color:var(--blue)}
+.btn.sm{padding:5px 10px;font-size:13px}
+.btn.ghost{border-color:var(--line)}
+.btn.danger{border-color:var(--high);color:var(--high)}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{border:1px solid var(--line);background:var(--sheet);border-radius:999px;padding:5px 11px;font-size:13px;cursor:pointer;color:var(--ink2)}
+.chip.on{background:var(--cyan-soft);border-color:var(--cyan);color:var(--ink);font-weight:600}
+.chip.on::before{content:"\2713  ";color:var(--cyan)}
+/* Journey */
+.journey{display:flex;gap:0;overflow-x:auto;padding:4px 0}
+.jstep{flex:1 0 110px;text-align:center;position:relative;padding:8px 4px}
+.jstep .dot{width:34px;height:34px;margin:0 auto 6px;border:2px solid var(--ink);border-radius:50%;display:grid;place-items:center;font-family:var(--mono);font-size:12px;background:var(--sheet);position:relative;z-index:1}
+.jstep::after{content:"";position:absolute;top:24px;left:50%;right:-50%;border-top:2px dashed var(--line)}
+.jstep:last-child::after{display:none}
+.jstep .t{font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase}
+.jstep .d{font-size:12px;color:var(--muted)}
+/* Tables */
+.tbl{width:100%;border-collapse:collapse;font-size:14px}
+.tbl th{font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);text-align:left;padding:8px;border-bottom:2px solid var(--ink);font-weight:500}
+.tbl td{padding:10px 8px;border-bottom:1px solid var(--line2);vertical-align:top}
+.tbl td .sub{font-size:12px;color:var(--muted)}
+.tbl-wrap{overflow-x:auto}
+@media(max-width:700px){
+  .tbl.stack thead{display:none}
+  .tbl.stack tr{display:block;border:1px solid var(--line);border-radius:6px;margin-bottom:10px;padding:6px}
+  .tbl.stack td{display:block;border:0;padding:6px}
+  .tbl.stack td[data-l]::before{content:attr(data-l);display:block;font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+}
+.risk{display:inline-block;font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;padding:2px 8px;border-radius:3px;border:1px solid}
+.risk.High{color:var(--high);background:var(--high-soft);border-color:var(--high)}
+.risk.Medium{color:var(--med);background:var(--med-soft);border-color:var(--med)}
+.risk.Low{color:var(--low);background:var(--low-soft);border-color:var(--low)}
+.stat{display:inline-flex;border:1px solid var(--line);border-radius:4px;overflow:hidden;flex-wrap:wrap}
+.stat button{border:0;background:var(--sheet);padding:5px 9px;font-size:12px;cursor:pointer;font-family:var(--mono);color:var(--ink2)}
+.stat button+button{border-left:1px solid var(--line)}
+.stat button.on[data-v="ok"],.stat button.on[data-v="none"]{background:var(--low-soft);color:var(--low);font-weight:700}
+.stat button.on[data-v="finding"],.stat button.on[data-v="signs"]{background:var(--high-soft);color:var(--high);font-weight:700}
+.stat button.on[data-v="open"],.stat button.on[data-v="unchecked"]{background:var(--blue-soft);color:var(--blue);font-weight:700}
+.stat button.on[data-v="na"],.stat button.on[data-v="noaccess"]{background:var(--med-soft);color:var(--med);font-weight:700}
+.note-in{margin-top:6px;font-size:13px;padding:6px 8px}
+/* Findings */
+.fcard{border:1px solid var(--line);border-left:4px solid var(--blue);border-radius:6px;padding:12px 14px;margin-bottom:10px;background:var(--sheet);display:flex;gap:12px;justify-content:space-between;flex-wrap:wrap}
+.fcard.High{border-left-color:var(--high)}.fcard.Medium{border-left-color:var(--med)}.fcard.Low{border-left-color:var(--low)}
+.fid{font-family:var(--mono);font-weight:700;letter-spacing:.06em}
+.fcard .meta{font-size:13px;color:var(--ink2)}
+.empty{border:1px dashed var(--line);border-radius:6px;padding:26px;text-align:center;color:var(--muted)}
+/* Editor */
+.step{border-top:1px solid var(--line2);padding:16px 0}
+.step:first-child{border-top:0;padding-top:0}
+.step-h{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.step-h .num{width:28px;height:28px;border:2px solid var(--ink);border-radius:50%;display:grid;place-items:center;font-family:var(--mono);font-size:12px;flex:0 0 auto}
+.step-h h3{margin:0;font-size:15px}
+.step-h .tag{font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--cyan)}
+.q{font-size:14px;font-weight:600;margin:10px 0 6px}
+.editor-layout{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:18px}
+@media(max-width:960px){.editor-layout{grid-template-columns:1fr}}
+.side{position:sticky;top:130px;align-self:start}
+@media(max-width:960px){.side{position:static}}
+.prompt-box{border:1px solid var(--cyan);border-radius:6px;background:var(--cyan-soft);padding:12px 14px}
+.prompt-box h4{margin:0 0 6px;font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--cyan)}
+.prompt-box ul{margin:4px 0 10px;padding-left:18px;font-size:13px}
+.prompt-box li{margin-bottom:4px}
+.warn{border:1px solid var(--high);background:var(--high-soft);border-radius:6px;padding:10px 12px;font-size:13px;margin-bottom:10px}
+.warn b{color:var(--high)}
+.info{border:1px solid var(--blue);background:var(--blue-soft);border-radius:6px;padding:10px 12px;font-size:13px;margin-bottom:10px}
+.ok{border:1px solid var(--low);background:var(--low-soft);border-radius:6px;padding:10px 12px;font-size:13px;margin-bottom:10px}
+/* Photos */
+.photos{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+@media(max-width:560px){.photos{grid-template-columns:1fr}}
+.ph{border:1px dashed var(--ink2);border-radius:6px;padding:10px;text-align:center;background:var(--paper);min-height:160px;display:flex;flex-direction:column;gap:6px;justify-content:center;align-items:center}
+.ph .pt{font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase}
+.ph .pd{font-size:12px;color:var(--muted)}
+.ph img{max-width:100%;max-height:170px;border-radius:4px;border:1px solid var(--line)}
+.ph input{display:none}
+/* Dew */
+.dew-out{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:12px}
+@media(max-width:560px){.dew-out{grid-template-columns:1fr}}
+.kpi{border:1px solid var(--line);border-radius:6px;padding:10px 12px;background:var(--paper)}
+.kpi .k{font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.kpi .v{font-size:20px;font-weight:700;font-family:var(--mono)}
+.kpi .s{font-size:12px;color:var(--ink2)}
+.sum-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+@media(max-width:700px){.sum-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.legend{display:grid;gap:8px;font-size:13px}
+.legend div{display:flex;gap:10px;align-items:flex-start}
+.refs{font-size:13px;padding-left:18px}
+.refs li{margin-bottom:6px}
+.src{font-family:var(--mono);font-size:10.5px;letter-spacing:.03em;color:var(--muted);margin-top:4px}
+.src a{color:var(--cyan);text-decoration:none;border-bottom:1px dotted var(--cyan)}
+.srclist{list-style:none;padding:0;margin:0;font-size:13px}
+.srclist li{padding:8px 0;border-bottom:1px solid var(--line2);overflow-wrap:anywhere}
+.refs li,.rep-f dd{overflow-wrap:anywhere}
+.srclist .key{font-family:var(--mono);font-size:11px;color:var(--cyan);letter-spacing:.06em;text-transform:uppercase;display:block}
+.srclist li:target{background:var(--cyan-soft)}
+.steps li{margin-bottom:8px}
+@media(max-width:700px){#reportBody table.tbl{display:block;overflow-x:auto}}
+.toast{position:fixed;bottom:16px;left:50%;transform:translateX(-50%);background:var(--ink);color:var(--sheet);padding:10px 16px;border-radius:4px;font-size:14px;opacity:0;pointer-events:none;transition:opacity .2s;z-index:99;max-width:90vw}
+.toast.show{opacity:1}
+footer{border-top:2px solid var(--ink);background:var(--sheet);padding:14px 0;font-family:var(--mono);font-size:11px;letter-spacing:.08em;color:var(--muted)}
+footer .wrap{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.hide{display:none!important}
+.buyer-only,.owner-only{}
+body[data-mode="buyer"] .owner-only{display:none!important}
+body[data-mode="owner"] .buyer-only{display:none!important}
+/* Report */
+.rep-photos{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:8px}
+.rep-photos figure{margin:0;font-family:var(--mono);font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}
+.rep-photos img{width:100%;border:1px solid var(--line);border-radius:3px}
+.rep-f{border:1px solid var(--line);border-radius:6px;padding:12px;margin-bottom:12px;page-break-inside:avoid}
+.rep-f dl{display:grid;grid-template-columns:170px 1fr;gap:4px 12px;margin:8px 0;font-size:13px}
+.rep-f dt{font-family:var(--mono);font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+.rep-f dd{margin:0}
+@media(max-width:560px){.rep-f dl{grid-template-columns:1fr}}
+@media print{
+  :root,[data-theme="dark"]{--paper:#fff;--sheet:#fff;--ink:#16243F;--ink2:#44546F;--muted:#5B6A82;--line:#B8C6DA;--line2:#DDE5F0;--blue:#2D5B9A;--blue-soft:#EEF3FA;--cyan:#0B7F97;--cyan-soft:#E6F4F7;--high:#B3261E;--high-soft:#FCEBEA;--med:#A15C00;--med-soft:#FFF3E0;--low:#2E7D4F;--low-soft:#E7F5EC}
+  body{background:#fff;font-size:12px;color:#16243F}
+  .rep-f{page-break-inside:auto}
+  .rep-f dl,.rep-photos figure{page-break-inside:avoid}
+  .rep-photos img{max-height:220px;object-fit:contain}
+  header.tb,nav.tabs,footer,.no-print,.toast{display:none!important}
+  .view{display:none!important}
+  #view-report{display:block!important}
+  .sheet{box-shadow:none;border-color:#999}
+  main{padding:0}
+}
+</style>
+<style>
+.tk{display:grid;grid-template-columns:28px 1fr 150px 150px 120px;gap:10px;align-items:center;padding:10px 0;border-bottom:1px solid var(--line2)}
+.tk .t b{display:block}.tk .t .sub{font-size:12.5px;color:var(--muted)}
+.tk input[type=date]{width:100%}
+.tk .due{font-size:13px}
+.tk.off{opacity:.45}
+.pill{display:inline-block;font-family:var(--mono);font-size:10.5px;letter-spacing:.08em;border-radius:999px;padding:2px 8px;border:1px solid var(--line);margin-right:4px}
+.pill.cit{border-color:var(--low);color:var(--low)}.pill.pp{border-color:var(--muted);color:var(--muted)}
+.months{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:12px}
+.mon{border:1px solid var(--line);border-radius:8px;padding:10px;background:var(--sheet)}
+.mon h3{margin:0 0 6px;font-size:14px;font-family:var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--cyan)}
+.mon ul{margin:0;padding-left:16px;font-size:13px}.mon li{margin-bottom:3px}
+.mon .none{font-size:12.5px;color:var(--muted)}
+.kpis{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px;margin-bottom:12px}
+@media(max-width:760px){.tk{grid-template-columns:28px 1fr;}.tk>*:nth-child(n+3){grid-column:2}}
+</style>
+</head>
+<body data-mode="owner">
+<header class="tb">
+  <div class="wrap tb-row" style="padding:0">
+    <div class="tb-cell brand"><div class="coll">The Snag Tag &middot; Beneath the Surface</div><h1>Home Health <span>Calendar</span></h1></div>
+    <div class="tb-cell"><div class="tb-label">Display</div><div class="seg" id="themeSeg"><button data-v="light">Light</button><button data-v="dark">Dark</button></div></div>
+  </div>
+</header>
+<nav class="tabs"><div class="wrap" id="tabs">
+  <button data-t="today"><span class="n">00</span>Due now</button>
+  <button data-t="tasks"><span class="n">01</span>My tasks</button>
+  <button data-t="year"><span class="n">02</span>Year plan</button>
+  <button data-t="log"><span class="n">03</span>Done log</button>
+  <button data-t="about"><span class="n">04</span>Sources &amp; backup</button>
+</div></nav>
+<main><div class="wrap">
+
+<section class="view" id="view-today">
+  <div class="sheet"><div class="sheet-h"><h2>What is due</h2><span class="ref" id="todayRef"></span></div>
+  <div class="sheet-b">
+    <p class="lede">Your home's recurring checks from all twelve Beneath the Surface tools, in one place. Tick <b>Done today</b> when you finish one and the next date is set for you.</p>
+    <div class="kpis" id="kpis"></div>
+    <div id="dueList"></div>
+  </div></div>
+</section>
+
+<section class="view hide" id="view-tasks">
+  <div class="sheet"><div class="sheet-h"><h2>My tasks</h2><span class="ref" id="taskRef"></span></div>
+  <div class="sheet-b">
+    <p class="lede">Switch on the tasks that apply to your home and enter when each was last done. <span class="pill cit">CITED</span> frequencies come from public guidance. <span class="pill pp">SUGGESTED</span> frequencies are professional practice; adjust them to suit your home.</p>
+    <div id="taskList"></div>
+    <h3 style="font-size:15px;margin:18px 0 8px">Add your own task</h3>
+    <div class="grid g3">
+      <label class="f"><span>Task</span><input type="text" id="cuT" placeholder="e.g. Service the pool pump"></label>
+      <label class="f"><span>Repeat every (months)</span><input type="number" id="cuM" min="1" max="120" step="1" placeholder="e.g. 12"></label>
+      <label class="f"><span>Last done</span><input type="date" id="cuD"></label>
+    </div>
+    <div class="row" style="margin-top:10px"><button class="btn pri" id="cuSave" type="button">Add task</button></div>
+  </div></div>
+</section>
+
+<section class="view hide" id="view-year">
+  <div class="row no-print" style="margin-bottom:12px"><button class="btn pri" id="printBtn" type="button">Print / Save as PDF</button></div>
+  <div class="sheet"><div class="sheet-h"><h2>Next 12 months</h2><span class="ref" id="yearRef"></span></div>
+  <div class="sheet-b"><div class="months" id="months"></div>
+  <p class="hint" style="margin-top:10px">Monthly tasks appear in every month. Tasks with no last-done date are shown as due now.</p></div></div>
+</section>
+
+<section class="view hide" id="view-log">
+  <div class="sheet"><div class="sheet-h"><h2>Done log</h2><span class="ref" id="logRef"></span></div>
+  <div class="sheet-b"><div class="tbl-wrap"><table class="tbl stack" id="logTbl"><thead><tr><th>Date</th><th>Task</th><th>Check</th><th></th></tr></thead><tbody></tbody></table></div></div></div>
+</section>
+
+<section class="view hide" id="view-about">
+  <div class="sheet"><div class="sheet-h"><h2>Sources</h2><span class="ref">REFERENCES</span></div>
+  <div class="sheet-b"><ul class="srclist" id="srcList"></ul>
+  <p class="hint">Each cited frequency is taken from the same source used in the matching Beneath the Surface tool. Follow manufacturers' instructions and local rules where they differ. This calendar is a reminder tool, not an inspection.</p></div></div>
+  <div class="sheet"><div class="sheet-h"><h2>Backup</h2><span class="ref">SAVED ON THIS DEVICE</span></div>
+  <div class="sheet-b"><div class="row">
+    <button class="btn" id="exportBtn" type="button">Download backup (.json)</button>
+    <label class="btn">Restore backup<input type="file" id="importFile" accept=".json,application/json" style="display:none"></label>
+    <button class="btn danger" id="resetBtn" type="button">Clear all data</button>
+  </div></div></div>
+</section>
+
+</div></main>
+<footer><div class="wrap"><span>THE SNAG TAG &middot; BENEATH THE SURFACE COLLECTION &middot; HOME HEALTH CALENDAR</span><span id="saveState">SAVED ON THIS DEVICE</span></div></footer>
+<div class="toast" id="toast"></div>
+<script>
+(function(){
+"use strict";
+var KEY='snagtag_bts_calendar_v1';
+var SRC={
+ NFPA:'NFPA - Smoke Alarms at Home safety tips',UKFK:'UK Government - Fire Kills',USFA1:'US Fire Administration - Smoke Alarms',USFA2:'US Fire Administration - Heating Fire Safety',USFA3:'US Fire Administration - Home Fire Escape Plans',
+ ESFI:'ESFi - Home Safety',CDC:'US CDC - Avoid Carbon Monoxide Poisoning',GSR:'Gas Safe Register (UK)',ESTAR:'ENERGY STAR - Heating and cooling maintenance checklist',
+ CB:'COLORBOND steel (BlueScope) - FAQ',BRANZ:'BRANZ - Metal corrosion in New Zealand buildings #1',DPC:'Dulux Powder Coatings - Care and maintenance',BRE:'BRE - crack monitoring guidance (as cited in the Cracks & Movement tool)',EPA:'US EPA - A Brief Guide to Mold, Moisture and Your Home',WHO:'WHO - Radon and health',PP:'Professional practice'
+};
+var LIB=[
+ {id:'smoke',c:'06',t:'Test every smoke alarm',m:1,cit:true,s:['NFPA','UKFK'],n:'Press and hold the test button on each alarm.'},
+ {id:'gfci',c:'02',t:'Test GFCI / AFCI / RCD devices',m:1,cit:true,s:['NFPA','ESFI'],n:'Press the Test button as the manufacturer describes. If it does not trip or reset, call a qualified electrician.'},
+ {id:'filters',c:'09',t:'Inspect, clean or change HVAC air filters',m:1,cit:true,s:['ESTAR'],n:'Central air conditioner, furnace or heat pump.',opt:'If fitted'},
+ {id:'co',c:'07',t:'Check or replace CO alarm batteries',m:6,cit:true,s:['CDC'],n:'Each spring and autumn.'},
+ {id:'batt9',c:'06',t:'Replace 9-volt smoke alarm batteries',m:12,cit:true,s:['NFPA','USFA1'],n:'For alarms with replaceable 9-volt batteries.',opt:'If fitted'},
+ {id:'service',c:'07',t:'Service gas, oil or coal appliances',m:12,cit:true,s:['CDC','GSR'],n:'Heating system, water heater and other fuel-burning appliances, by a qualified (registered) technician.'},
+ {id:'chimney',c:'06',t:'Clean and inspect chimneys and heating equipment',m:12,cit:true,s:['USFA2'],n:'By a professional.',opt:'If fitted'},
+ {id:'ac',c:'09',t:'Contractor check-up for heating and cooling',m:12,cit:true,s:['ESTAR'],n:'Annual pre-season check-up, including cleaning coils.'},
+ {id:'alarm10',c:'06',t:'Replace smoke alarms at 10 years',m:120,cit:true,s:['NFPA'],n:'Set "last done" to the date the alarms were fitted.'},
+ {id:'wash',c:'09',t:'Hose down metal in sheltered areas',m:6,cit:true,s:['CB','BRANZ'],n:'At least every six months, more often on the coast; every 3 months for metal cladding in the most severe areas.',opt:'Coastal homes'},
+ {id:'furn',c:'09',t:'Clean powder-coated outdoor furniture and frames',m:3,cit:true,s:['DPC'],n:'Every 3 months in coastal (very high) environments; every 12 months in normal urban areas.',opt:'Coastal homes'},
+ {id:'drill',c:'06',t:'Practise the home fire drill',m:6,cit:false,s:['USFA3','PP'],n:'Practising the drill with everyone: US Fire Administration. Twice a year: suggested.'},
+ {id:'cracks',c:'05',t:'Re-measure recorded cracks',m:3,cit:false,s:['BRE','PP'],n:'Re-measuring over weeks and months: BRE. Every 3 months: suggested.',opt:'If cracks recorded'},
+ {id:'humid',c:'08',t:'Take humidity readings in key rooms',m:3,cit:false,s:['EPA','PP'],n:'Target below 60%, ideally 30-50% (US EPA). Every 3 months: suggested.'},
+ {id:'meter',c:'04',t:'Water meter leak test',m:12,cit:false,s:['PP'],n:'Suggested yearly.'},
+ {id:'gutters',c:'03',t:'Gutters and downpipes cleared',m:6,cit:false,s:['PP'],n:'By someone with safe access. Suggested twice a year.'},
+ {id:'damp',c:'01',t:'Damp and condensation walk-round',m:12,cit:false,s:['PP'],n:'Behind furniture, cupboards and window seals. Suggested before winter.'},
+ {id:'pests',c:'11',t:'Timber pest inspection by a licensed professional',m:12,cit:false,s:['PP'],n:'Suggested yearly where termites are a risk. Local rules differ.',opt:'Where relevant'},
+ {id:'radon',c:'08',t:'Radon test',m:0,cit:true,s:['WHO'],n:'One-off: measure over at least 3 months. Re-test after major building work (suggested).'}
+];
+var S={theme:'light',on:{},last:{},months:{},custom:[],log:[]};
+try{var r=localStorage.getItem(KEY);if(r){var o=JSON.parse(r);if(o&&o.on)S=Object.assign(S,o);}}catch(e){}
+function $(s){return document.querySelector(s);}function $$(s){return Array.prototype.slice.call(document.querySelectorAll(s));}
+function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
+function toast(m){var t=$('#toast');t.textContent=m;t.classList.add('show');clearTimeout(t._h);t._h=setTimeout(function(){t.classList.remove('show');},2400);}
+var tm=null;function flush(){clearTimeout(tm);tm=null;try{localStorage.setItem(KEY,JSON.stringify(S));$('#saveState').textContent='SAVED ON THIS DEVICE';}catch(e){$('#saveState').textContent='NOT SAVED';}}
+function save(){clearTimeout(tm);tm=setTimeout(flush,200);}
+window.addEventListener('pagehide',function(){if(tm)flush();});
+function today(){var d=new Date();d.setHours(12,0,0,0);return d;}
+function iso(d){return new Date(d.getTime()-d.getTimezoneOffset()*60000).toISOString().slice(0,10);}
+function pd(s){return s?new Date(s+'T12:00:00'):null;}
+function fmt(s){return s?pd(s).toLocaleDateString(undefined,{year:'numeric',month:'short',day:'numeric'}):'-';}
+function addM(s,m){var d=pd(s);d.setMonth(d.getMonth()+m);return iso(d);}
+function all(){return LIB.map(function(x){return Object.assign({},x,{m:S.months[x.id]||x.m});}).concat(S.custom.map(function(c){return {id:c.id,c:'',t:c.t,m:c.m,cit:false,s:['PP'],n:'Your own task.',custom:true};}));}
+function active(){return all().filter(function(x){return S.on[x.id];});}
+function nextDue(x){if(!x.m)return S.last[x.id]?null:iso(today());if(!S.last[x.id])return iso(today());return addM(S.last[x.id],x.m);}
+function status(x){var n=nextDue(x);if(!n)return {t:'Done (one-off)',c:'Low',n:null};var d=Math.round((pd(n)-today())/86400000);if(!S.last[x.id])return {t:'No date yet: due now',c:'Medium',n:n};if(d<0)return {t:'Overdue by '+(-d)+' day'+(d===-1?'':'s'),c:'High',n:n};if(d<=14)return {t:'Due in '+d+' day'+(d===1?'':'s'),c:'Medium',n:n};return {t:'Next: '+fmt(n),c:'Low',n:n};}
+function every(m){return !m?'One-off':m===1?'Monthly':m===12?'Yearly':m===120?'Every 10 years':'Every '+m+' months';}
+function srcTxt(x){return x.s.map(function(k){return k==='PP'?'Professional practice':SRC[k].split(' - ')[0];}).join(', ');}
+function renderToday(){
+  var a=active(),rows=a.map(function(x){return {x:x,st:status(x)};}).filter(function(r){return r.st.c!=='Low';});
+  rows.sort(function(p,q){return (p.st.n||'').localeCompare(q.st.n||'');});
+  var od=rows.filter(function(r){return r.st.c==='High';}).length;
+  $('#kpis').innerHTML='<div class="kpi"><div class="k">Tasks switched on</div><div class="v">'+a.length+'</div></div><div class="kpi"><div class="k">Overdue</div><div class="v" style="color:var(--high)">'+od+'</div></div><div class="kpi"><div class="k">Due within 14 days</div><div class="v">'+(rows.length-od)+'</div></div><div class="kpi"><div class="k">Done this year</div><div class="v">'+S.log.filter(function(l){return l.d.slice(0,4)===iso(today()).slice(0,4);}).length+'</div></div>';
+  $('#todayRef').textContent=rows.length+' DUE';
+  $('#dueList').innerHTML=a.length?(rows.length?rows.map(function(r){var x=r.x;return '<div class="tk" style="grid-template-columns:1fr auto auto"><div class="t"><b>'+esc(x.t)+'</b><span class="sub">'+(x.c?'Check '+x.c+' &middot; ':'')+every(x.m)+'</span></div><span class="risk '+r.st.c+'">'+esc(r.st.t)+'</span><button class="btn sm pri" type="button" data-done="'+x.id+'">Done today</button></div>';}).join(''):'<div class="empty">Nothing due in the next 14 days.</div>'):'<div class="empty">No tasks switched on yet. Go to <b>My tasks</b> to choose the ones that apply to your home.</div>';
+}
+function renderTasks(){
+  var h='';all().forEach(function(x){var on=!!S.on[x.id],st=status(x);
+    h+='<div class="tk'+(on?'':' off')+'" data-id="'+x.id+'"><input type="checkbox" aria-label="Use this task" data-on="'+x.id+'"'+(on?' checked':'')+'>'+
+    '<div class="t"><b>'+esc(x.t)+'</b><span class="sub">'+(x.c?'Check '+x.c+' &middot; ':'')+(x.opt?esc(x.opt)+' &middot; ':'')+esc(x.n)+'</span><span class="sub"><span class="pill '+(x.cit?'cit':'pp')+'">'+(x.cit?'CITED':'SUGGESTED')+'</span>'+esc(srcTxt(x))+'</span></div>'+
+    '<label class="f"><span>'+(x.m?'Repeat every':'Type')+'</span>'+(x.m?'<select data-m="'+x.id+'">'+[1,3,6,12,24,120].concat(x.m&&[1,3,6,12,24,120].indexOf(x.m)<0?[x.m]:[]).map(function(v){return '<option value="'+v+'"'+(x.m===v?' selected':'')+'>'+every(v)+'</option>';}).join('')+'</select>':'<span class="hint">One-off</span>')+'</label>'+
+    '<label class="f"><span>Last done</span><input type="date" data-last="'+x.id+'" value="'+esc(S.last[x.id]||'')+'"></label>'+
+    '<div class="due">'+(on?'<span class="risk '+st.c+'">'+esc(st.t)+'</span>':'<span class="hint">Off</span>')+(x.custom?'<br><button class="btn sm ghost" type="button" data-del="'+x.id+'">Remove</button>':'')+'</div></div>';});
+  $('#taskList').innerHTML=h;$('#taskRef').textContent=active().length+' OF '+all().length+' ON';
+}
+function renderYear(){
+  var a=active(),t=today(),h='';
+  for(var i=0;i<12;i++){var ms=new Date(t.getFullYear(),t.getMonth()+i,1,12),me=new Date(t.getFullYear(),t.getMonth()+i+1,0,12);var items=[];
+    a.forEach(function(x){var n=nextDue(x);if(!n)return;var d=pd(n);var k=0;
+      if(x.m===1){items.push(x.t);return;}
+      while(d<=me&&k<200){if(d>=ms||(i===0&&d<ms)){items.push(x.t+(d<ms?' (overdue)':''));break;}d=pd(addM(iso(d),x.m||12));k++;}});
+    h+='<div class="mon"><h3>'+ms.toLocaleDateString(undefined,{month:'long',year:'numeric'})+'</h3>'+(items.length?'<ul>'+items.map(function(s){return '<li>'+esc(s)+'</li>';}).join('')+'</ul>':'<div class="none">Nothing scheduled.</div>')+'</div>';}
+  $('#months').innerHTML=h;$('#yearRef').textContent=a.length+' TASKS';
+}
+function renderLog(){
+  var h=S.log.slice().sort(function(p,q){return q.d.localeCompare(p.d);}).map(function(l){var i=S.log.indexOf(l);return '<tr><td data-l="Date">'+fmt(l.d)+'</td><td data-l="Task">'+esc(l.t)+'</td><td data-l="Check">'+esc(l.c||'-')+'</td><td><button class="btn sm ghost" type="button" data-logdel="'+i+'">Remove</button></td></tr>';}).join('');
+  $('#logTbl tbody').innerHTML=h||'<tr><td colspan="4"><div class="empty">Nothing logged yet.</div></td></tr>';$('#logRef').textContent=S.log.length+' ENTRIES';
+}
+function renderSrc(){$('#srcList').innerHTML=Object.keys(SRC).map(function(k){return '<li><b>'+esc(SRC[k])+'</b></li>';}).join('');}
+function renderAll(){renderToday();renderTasks();renderYear();renderLog();}
+function applyTheme(){document.documentElement.setAttribute('data-theme',S.theme);$$('#themeSeg button').forEach(function(b){b.classList.toggle('on',b.dataset.v===S.theme);});}
+function go(t){$$('.view').forEach(function(v){v.classList.add('hide');});$('#view-'+t).classList.remove('hide');$$('#tabs button').forEach(function(b){b.classList.toggle('on',b.dataset.t===t);});renderAll();window.scrollTo(0,0);}
+function markDone(id){var x=all().filter(function(y){return y.id===id;})[0];if(!x)return;var d=iso(today());S.last[id]=d;S.log.push({d:d,id:id,t:x.t,c:x.c});save();renderAll();toast('Marked done today');}
+$$('#tabs button').forEach(function(b){b.addEventListener('click',function(){go(b.dataset.t);});});
+$$('#themeSeg button').forEach(function(b){b.addEventListener('click',function(){S.theme=b.dataset.v;applyTheme();save();});});
+document.addEventListener('click',function(e){var d=e.target.closest('[data-done]');if(d){markDone(d.dataset.done);return;}
+  var r=e.target.closest('[data-del]');if(r){var id=r.dataset.del;S.custom=S.custom.filter(function(c){return c.id!==id;});delete S.on[id];delete S.last[id];save();renderAll();return;}
+  var l=e.target.closest('[data-logdel]');if(l){S.log.splice(+l.dataset.logdel,1);save();renderAll();}});
+$('#taskList').addEventListener('change',function(e){var t=e.target;
+  if(t.dataset.on){if(t.checked)S.on[t.dataset.on]=true;else delete S.on[t.dataset.on];}
+  else if(t.dataset.m){S.months[t.dataset.m]=+t.value;}
+  else if(t.dataset.last!==undefined){if(t.value)S.last[t.dataset.last]=t.value;else delete S.last[t.dataset.last];}
+  save();renderAll();});
+$('#cuSave').addEventListener('click',function(){var t=$('#cuT').value.trim(),m=parseInt($('#cuM').value,10);if(!t){toast('Enter the task.');return;}if(!(m>=1&&m<=120)){toast('Enter how often, from 1 to 120 months.');return;}
+  var id='cu'+Date.now();S.custom.push({id:id,t:t,m:m});S.on[id]=true;if($('#cuD').value)S.last[id]=$('#cuD').value;$('#cuT').value='';$('#cuM').value='';$('#cuD').value='';save();renderAll();toast('Task added');});
+$('#printBtn').addEventListener('click',function(){renderYear();window.print();});
+$('#exportBtn').addEventListener('click',function(){var a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(Object.assign({v:1,kind:'calendar'},S),null,1)],{type:'application/json'}));a.download='home-health-calendar-'+iso(today())+'.json';document.body.appendChild(a);a.click();setTimeout(function(){URL.revokeObjectURL(a.href);a.remove();},400);toast('Backup downloaded');});
+$('#importFile').addEventListener('change',function(e){var f=e.target.files[0];if(!f)return;var rd=new FileReader();rd.onload=function(){try{var o=JSON.parse(rd.result);if(!o||o.kind!=='calendar'||!o.on)throw 0;delete o.v;delete o.kind;S=Object.assign({theme:'light',on:{},last:{},months:{},custom:[],log:[]},o);flush();applyTheme();renderAll();toast('Backup restored');}catch(err){toast('That file is not a valid calendar backup.');}e.target.value='';};rd.readAsText(f);});
+$('#resetBtn').addEventListener('click',function(e){var b=e.currentTarget;if(b.dataset.confirm){var th=S.theme;S={theme:th,on:{},last:{},months:{},custom:[],log:[]};flush();renderAll();toast('All data cleared');delete b.dataset.confirm;b.textContent='Clear all data';}else{b.dataset.confirm='1';b.textContent='Tap again to clear everything';setTimeout(function(){delete b.dataset.confirm;b.textContent='Clear all data';},3500);}});
+renderSrc();applyTheme();go('today');
+})();
+</script>
+</body>
+</html>
